@@ -1,0 +1,352 @@
+{
+  "version": 4,
+  "terraform_version": "1.14.5",
+  "serial": 70,
+  "lineage": "5e946a77-58d7-529b-9769-7561f430c8ff",
+  "outputs": {},
+  "resources": [
+    {
+      "mode": "managed",
+      "type": "vyos_container_name",
+      "name": "tailscale",
+      "provider": "provider[\"registry.terraform.io/thomasfinstad/vyos-rolling\"]",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "allow_host_networks": false,
+            "allow_host_pid": false,
+            "arguments": null,
+            "capability": [
+              "net-admin",
+              "net-raw"
+            ],
+            "command": null,
+            "cpu_quota": null,
+            "description": null,
+            "disable": false,
+            "entrypoint": null,
+            "gid": null,
+            "host_name": null,
+            "id": null,
+            "identifier": {
+              "name": "tailscale"
+            },
+            "image": "tailscale/tailscale:latest",
+            "memory": null,
+            "name_server": null,
+            "network": {
+              "tailscale": {
+                "address": null
+              }
+            },
+            "restart": "always",
+            "shared_memory": null,
+            "timeouts": null,
+            "uid": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "dependencies": [
+            "vyos_container_network.tailscale"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "vyos_container_network",
+      "name": "tailscale",
+      "provider": "provider[\"registry.terraform.io/thomasfinstad/vyos-rolling\"]",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "description": null,
+            "id": null,
+            "identifier": {
+              "network": "tailscale"
+            },
+            "mtu": null,
+            "no_name_server": false,
+            "prefix": [
+              "10.255.0.0/24"
+            ],
+            "timeouts": null,
+            "vrf": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "vyos_interfaces_ethernet",
+      "name": "lan",
+      "provider": "provider[\"registry.terraform.io/thomasfinstad/vyos-rolling\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "address": [
+              "192.168.10.1/24"
+            ],
+            "description": "Internal LAN for Talos Nodes",
+            "dhcp_options": null,
+            "dhcpv6_options": null,
+            "disable": false,
+            "disable_flow_control": false,
+            "disable_link_detect": false,
+            "duplex": null,
+            "eapol": null,
+            "evpn": null,
+            "hw_id": null,
+            "id": null,
+            "identifier": {
+              "ethernet": "eth0"
+            },
+            "ip": null,
+            "ipv6": null,
+            "mac": null,
+            "mirror": null,
+            "mtu": null,
+            "offload": null,
+            "redirect": null,
+            "ring_buffer": null,
+            "speed": null,
+            "switchdev": false,
+            "timeouts": null,
+            "vrf": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "vyos_interfaces_ethernet",
+      "name": "wan",
+      "provider": "provider[\"registry.terraform.io/thomasfinstad/vyos-rolling\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "address": [
+              "192.168.1.147/24",
+              "dhcpv6"
+            ],
+            "description": "External WAN",
+            "dhcp_options": null,
+            "dhcpv6_options": null,
+            "disable": false,
+            "disable_flow_control": false,
+            "disable_link_detect": false,
+            "duplex": null,
+            "eapol": null,
+            "evpn": null,
+            "hw_id": null,
+            "id": null,
+            "identifier": {
+              "ethernet": "eth1"
+            },
+            "ip": null,
+            "ipv6": null,
+            "mac": null,
+            "mirror": null,
+            "mtu": null,
+            "offload": null,
+            "redirect": null,
+            "ring_buffer": null,
+            "speed": null,
+            "switchdev": false,
+            "timeouts": null,
+            "vrf": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "vyos_nat_source_rule",
+      "name": "masquerade",
+      "provider": "provider[\"registry.terraform.io/thomasfinstad/vyos-rolling\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "description": null,
+            "destination": null,
+            "disable": false,
+            "exclude": false,
+            "id": null,
+            "identifier": {
+              "rule": 100
+            },
+            "load_balance": null,
+            "log": false,
+            "outbound_interface": {
+              "group": null,
+              "name": "eth1"
+            },
+            "packet_type": null,
+            "protocol": null,
+            "source": {
+              "address": "192.168.10.0/24",
+              "fqdn": null,
+              "group": null,
+              "port": null
+            },
+            "timeouts": null,
+            "translation": {
+              "address": "masquerade",
+              "options": null,
+              "port": null
+            }
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "vyos_service_dhcp_server",
+      "name": "dhcp",
+      "provider": "provider[\"registry.terraform.io/thomasfinstad/vyos-rolling\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "disable": false,
+            "dynamic_dns_update": false,
+            "hostfile_update": false,
+            "id": null,
+            "listen_address": null,
+            "listen_interface": [
+              "eth0"
+            ],
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "dependencies": [
+            "vyos_service_dhcp_server_shared_network_name.lan"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "vyos_service_dhcp_server_shared_network_name",
+      "name": "lan",
+      "provider": "provider[\"registry.terraform.io/thomasfinstad/vyos-rolling\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "authoritative": false,
+            "description": null,
+            "disable": false,
+            "id": null,
+            "identifier": {
+              "shared_network_name": "LAN_POOL"
+            },
+            "option": null,
+            "subnet": {
+              "192.168.10.0/24": {
+                "description": null,
+                "disable": false,
+                "exclude": null,
+                "ignore_client_id": false,
+                "lease": null,
+                "option": {
+                  "bootfile_name": null,
+                  "bootfile_server": null,
+                  "bootfile_size": null,
+                  "captive_portal": null,
+                  "client_prefix_length": null,
+                  "default_router": "192.168.10.1",
+                  "domain_name": null,
+                  "domain_search": null,
+                  "ip_forwarding": false,
+                  "ipv6_only_preferred": null,
+                  "name_server": [
+                    "1.1.1.1",
+                    "8.8.8.8"
+                  ],
+                  "ntp_server": null,
+                  "pop_server": null,
+                  "server_identifier": null,
+                  "smtp_server": null,
+                  "tftp_server_name": null,
+                  "time_offset": null,
+                  "time_server": null,
+                  "time_zone": null,
+                  "vendor_option": null,
+                  "wins_server": null,
+                  "wpad_url": null
+                },
+                "range": {
+                  "0": {
+                    "option": null,
+                    "start": "192.168.10.100",
+                    "stop": "192.168.10.200"
+                  }
+                },
+                "subnet_id": 1
+              }
+            },
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "vyos_service_router_advert_interface",
+      "name": "lan_ra",
+      "provider": "provider[\"registry.terraform.io/thomasfinstad/vyos-rolling\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "default_lifetime": null,
+            "default_preference": null,
+            "dnssl": null,
+            "hop_limit": null,
+            "id": null,
+            "identifier": {
+              "interface": "eth0"
+            },
+            "interval": null,
+            "link_mtu": null,
+            "managed_flag": false,
+            "name_server": [
+              "2606:4700:4700::1111",
+              "2001:4860:4860::8888"
+            ],
+            "name_server_lifetime": null,
+            "no_send_advert": false,
+            "no_send_interval": false,
+            "other_config_flag": true,
+            "reachable_time": null,
+            "retrans_timer": null,
+            "source_address": null,
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}
