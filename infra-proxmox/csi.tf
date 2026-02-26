@@ -46,10 +46,10 @@ locals {
           stringData:
             config.yaml: |
               clusters:
-                - url: "$${var.proxmox_api_url}"
+                - url: "${coalesce(var.proxmox_csi_api_url, var.proxmox_api_url)}"
                   insecure: true
-                  token_id: "$${proxmox_virtual_environment_user_token.csi_token[0].user_id}!$${proxmox_virtual_environment_user_token.csi_token[0].token_name}"
-                  token_secret: "$${proxmox_virtual_environment_user_token.csi_token[0].value}"
+                  token_id: "${proxmox_virtual_environment_user_token.csi_token[0].user_id}!${proxmox_virtual_environment_user_token.csi_token[0].token_name}"
+                  token_secret: "${proxmox_virtual_environment_user_token.csi_token[0].value}"
                   region: "default"
 EOF
 }

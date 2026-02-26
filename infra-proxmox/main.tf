@@ -23,7 +23,6 @@ provider "proxmox" {
   }
 }
 
-# VyOS Image and Snippet
 resource "proxmox_virtual_environment_file" "vyos_bootstrap" {
   node_name    = var.proxmox_node
   datastore_id = "local"
@@ -31,13 +30,11 @@ resource "proxmox_virtual_environment_file" "vyos_bootstrap" {
 
   source_raw {
     data      = <<EOF
-#cloud-config
 write_files:
   - path: /config/scripts/prep-tailscale.sh
     owner: root:vyattacfg
     permissions: '0755'
     content: |
-      #!/bin/vbash
       source /opt/vyatta/etc/functions/script-template
       mkdir -p /config/tailscale
       if ! run show container image | grep -q "tailscale/tailscale"; then
@@ -59,9 +56,15 @@ resource "proxmox_virtual_environment_file" "vyos_image" {
   source_file {
     path = var.vyos_iso_path
   }
+
+  lifecycle {
+    ignore_changes = [
+      source_file,
+      overwrite
+    ]
+  }
 }
 
-# Talos Image and Snippets
 resource "proxmox_virtual_environment_file" "talos_image" {
   node_name    = var.proxmox_node
   datastore_id = "local"
@@ -69,6 +72,13 @@ resource "proxmox_virtual_environment_file" "talos_image" {
 
   source_file {
     path = var.talos_image_local_path
+  }
+
+  lifecycle {
+    ignore_changes = [
+      source_file,
+      overwrite
+    ]
   }
 }
 

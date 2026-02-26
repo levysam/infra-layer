@@ -4,6 +4,12 @@ variable "proxmox_password" {}
 variable "proxmox_node" {}
 variable "proxmox_ssh_address" {}
 
+variable "proxmox_csi_api_url" {
+  type        = string
+  description = "Specific API URL to use for the CSI plugin if different from proxmox_api_url"
+  default     = null
+}
+
 variable "vyos_storage_id" {
   type = string
 }
@@ -68,7 +74,6 @@ variable "talos_worker_config_local_path" {
   description = "Local path to the Talos worker.yaml"
 }
 
-# Removed talos_os_iso, talos_seed_1, talos_seed_2 as they are legacy
 variable "talos_controlplane_dns_name" {
   default = "controlplane.local"
 }

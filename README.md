@@ -78,21 +78,48 @@ talosctl kubeconfig -n <CP_NODE_IP> ~/.kube/config
 
 ### Step 5: Deploy Proxmox CSI (`config-k8s-csi`)
 Once Kubernetes is Ready and you have your `kubeconfig`:
-1. Check `navride-csi.tfvars` to ensure `proxmox_csi_storage_pool` matches your Proxmox pool (e.g., `local-zfs` or `local-lvm`).
-2. Apply the Kubernetes module:
+1. **Important**: Proxmox CSI requires topology labels on all Talos nodes. Ensure your `controlplane.yaml` and `worker.yaml` files have the following labels configured under `machine.nodeLabels` before deploying, or apply them via `talosctl patch` / `kubectl label`:
+   ```yaml
+   machine:
+     nodeLabels:
+       topology.kubernetes.io/region: default
+       topology.kubernetes.io/zone: pve # MUST match your Proxmox node name!
+   ```
+2. Check `navride-csi.tfvars` to ensure `proxmox_csi_storage_pool` matches your Proxmox pool (e.g., `local-zfs` or `local-lvm`).
+3. Apply the Kubernetes module:
 ```bash
 cd ../config-k8s-csi
 terraform init
 terraform apply -var-file=navride-csi.tfvars
 ```
 
+### Step 6: Creating a New Storage Pool for CSI (e.g., ZFS)
+If you don't already have an additional disk or storage pool dedicated for Kubernetes, you should create one in Proxmox. We strongly recommend **ZFS** for the CSI plugin as it supports snapshots, thin-provisioning, and fast volume cloning.
+
+**How to create a ZFS Pool in the Proxmox GUI:**
+1. Connect a physical disk (or ensure you have an unused disk) on your Proxmox host.
+2. In the Proxmox Web GUI, select your node (e.g., `pve`) on the left pane.
+3. Under the node menu, go to **Disks** -> **ZFS**.
+4. Click **Create: VDEV**.
+5. Form details:
+   - **Name**: Give it a name (e.g., `talos-data`).
+   - **RAID Level**: Select `Single Disk` (or mirror/raidz if you have multiple disks).
+   - **Devices**: Select the unused disk from the list.
+   - Click **Create**.
+6. Proxmox will automatically mount the ZFS pool and add it to `Datacenter -> Storage`.
+7. **Important**: Go to **Datacenter -> Storage**, select your new ZFS pool (`talos-data`), and ensure that no content types like `ISO image` or `Container` are selected. It should only say `Disk image, Container`.
+8. Check `navride-csi.tfvars` and set `proxmox_csi_storage_pool = "talos-data"` (matching the name you assigned). Afterwards, re-run `terraform apply` in `config-k8s-csi` to update your `StorageClass`.
+
+**Note on PVC Initialization (Pending Status):**
+When you request a PersistentVolumeClaim (PVC), it will stay in a `Pending` state with the event `WaitForFirstConsumer`. This is entirely normal! The `proxmox-data` StorageClass uses the `WaitForFirstConsumer` binding mode. Proxmox CSI will not actually carve out the ZFS volume on the host until a Kubernetes Pod is successfully scheduled on a node and requests that PVC.
+
 Your cluster is now fully deployed, routed, connected via VPN, and capable of dynamically provisioning disks from Proxmox!
 
 ---
 
-## Day-2 Operations: Advanced Kubernetes Networking
+## Kubernetes Networking
 
-By default, bare-metal Kubernetes clusters lack managed LoadBalancers (like AWS ELB). To bring your cluster to a "Cloud-Native" standard, you should install a LoadBalancer provisioner like **MetalLB** combined with a robust CNI like **Cilium**.
+By default, bare-metal Kubernetes clusters lack managed LoadBalancers (like AWS ELB). To bring your cluster to a "Cloud-Native" standard, you should install a LoadBalancer provisioner like **MetalLB** or a robust CNI like **Cilium**.
 
 ### 1. BGP Architecture (VyOS + MetalLB)
 To expose IP addresses directly onto your physical network (or the Internet through a DMZ), this project configures VyOS to talk **BGP (Border Gateway Protocol)**.

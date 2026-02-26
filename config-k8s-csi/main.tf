@@ -23,15 +23,12 @@ provider "kubernetes" {
 
 resource "helm_release" "proxmox_csi" {
   name       = "proxmox-csi-plugin"
-  repository = "https://sergelogvinov.github.io/charts"
+  repository = "oci://ghcr.io/sergelogvinov/charts"
   chart      = "proxmox-csi-plugin"
   namespace  = "kube-system"
 
-  # We already created the proxmox-csi-plugin secret in the Talos configuration inline manifestation.
-  # So we just tell the chart to use it. The chart default is "proxmox-csi-plugin".
 }
 
-# Example StorageClass for Proxmox ZFS (can be customized by the user)
 resource "kubernetes_storage_class" "proxmox_data" {
   metadata {
     name = "proxmox-data"
@@ -40,7 +37,7 @@ resource "kubernetes_storage_class" "proxmox_data" {
     }
   }
 
-  storage_provisioner = "csi.proxmox.sink"
+  storage_provisioner = "csi.proxmox.sinextra.dev"
   reclaim_policy      = "Delete"
   volume_binding_mode = "WaitForFirstConsumer"
   parameters = {
