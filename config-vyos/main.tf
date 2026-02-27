@@ -20,7 +20,7 @@ resource "vyos_interfaces_ethernet" "lan" {
   identifier = {
     ethernet = "eth0"
   }
-  address     = [var.vyos_lan_cidr]
+  address     = [var.vyos_lan_cidr, var.vyos_bgp_lb_cidr]
   description = "Internal LAN for Talos Nodes"
 }
 
@@ -38,6 +38,21 @@ resource "vyos_nat_source_rule" "masquerade" {
   }
   source = {
     address = "${join(".", slice(split(".", var.vyos_lan_cidr), 0, 3))}.0/24"
+  }
+  outbound_interface = {
+    name = "eth1"
+  }
+  translation = {
+    address = "masquerade"
+  }
+}
+
+resource "vyos_nat_source_rule" "masquerade_bgp" {
+  identifier = {
+    rule = 110
+  }
+  source = {
+    address = "${join(".", slice(split(".", var.vyos_bgp_lb_cidr), 0, 3))}.0/24"
   }
   outbound_interface = {
     name = "eth1"
@@ -70,7 +85,7 @@ resource "vyos_system" "base" {
 
 resource "vyos_service_dhcp_server" "dhcp" {
   listen_interface = ["eth0"]
-  depends_on       = [vyos_service_dhcp_server_shared_network_name.lan]
+  depends_on       = [vyos_service_dhcp_server_shared_network_name.lan, vyos_service_dhcp_server_shared_network_name.bgp]
 }
 
 resource "vyos_service_dhcp_server_shared_network_name" "lan" {
@@ -88,6 +103,27 @@ resource "vyos_service_dhcp_server_shared_network_name" "lan" {
         "0" = {
           start = "${join(".", slice(split(".", var.vyos_lan_cidr), 0, 3))}.100"
           stop  = "${join(".", slice(split(".", var.vyos_lan_cidr), 0, 3))}.200"
+        }
+      }
+    }
+  }
+}
+
+resource "vyos_service_dhcp_server_shared_network_name" "bgp" {
+  identifier = {
+    shared_network_name = "BGP_POOL"
+  }
+  subnet = {
+    "${join(".", slice(split(".", var.vyos_bgp_lb_cidr), 0, 3))}.0/24" = {
+      subnet_id = 2
+      option = {
+        default_router = split("/", var.vyos_bgp_lb_cidr)[0]
+        name_server    = ["1.1.1.1", "8.8.8.8"]
+      }
+      range = {
+        "0" = {
+          start = "${join(".", slice(split(".", var.vyos_bgp_lb_cidr), 0, 3))}.10"
+          stop  = "${join(".", slice(split(".", var.vyos_bgp_lb_cidr), 0, 3))}.200"
         }
       }
     }

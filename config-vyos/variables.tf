@@ -12,6 +12,11 @@ variable "vyos_lan_cidr" {
   default = "192.168.10.1/24"
 }
 
+variable "vyos_bgp_lb_cidr" {
+  type    = string
+  default = "192.168.20.1/24"
+}
+
 variable "vyos_wan_static_ip" {
   type    = string
   default = null

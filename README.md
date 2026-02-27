@@ -53,6 +53,17 @@ machine:
 ### 3. IPv6 & DHCP (SLAAC)
 VyOS is configured for **SLAAC (Stateless Address Autoconfiguration)**. Talos should **not** request a stateful DHCPv6 address as it will cause timeout hangs. Ensure `dhcpOptions` does **not** contain `ipv6: true`.
 
+### 4. Kubelet Serving Certificates
+To enable tls and https inside the cluster (e.g., for Prometheus or `kubectl top`), you must enable Kubelet certificate rotation:
+```yaml
+machine:
+  kubelet:
+    extraArgs:
+      rotate-server-certificates: true
+```
+> [!IMPORTANT]
+> This requires manual approval of CSRs after the node starts (see Step 6).
+
 ---
 
 ## 💾 Proxmox CSI Requirements
@@ -98,6 +109,16 @@ talosctl kubeconfig -n <NODE_IP> ~/.kube/config
 ```bash
 cd ../config-k8s-csi
 terraform apply -var-file=navride-csi.tfvars
+```
+
+### Step 6: Approve Kubelet Certificates (Manual)
+Once the nodes are up, they will request serving certificates:
+```bash
+# List pending requests
+kubectl get csr
+
+# Approve all Kubelet serving CSRs
+kubectl certificate approve <csr-name>
 ```
 
 ---

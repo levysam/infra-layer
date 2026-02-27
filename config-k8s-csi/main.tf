@@ -57,6 +57,7 @@ resource "helm_release" "cilium" {
   chart      = "cilium"
   version    = "1.17.1"
   namespace  = "kube-system"
+  timeout    = 600
 
   values = [
     yamlencode({
@@ -110,8 +111,69 @@ resource "helm_release" "cilium" {
           enabled = true
         }
       }
+      bgpControlPlane = {
+        enabled = true
+      }
     })
   ]
+}
+
+resource "kubernetes_manifest" "cilium_loadbalancer_pool" {
+  manifest = {
+    apiVersion = "cilium.io/v2alpha1"
+    kind       = "CiliumLoadBalancerIPPool"
+    metadata = {
+      name = "navride-pool"
+    }
+    spec = {
+      blocks = [
+        {
+          start = cidrhost(var.cilium_bgp_lb_cidr, 50)
+          stop  = cidrhost(var.cilium_bgp_lb_cidr, 99)
+        }
+      ]
+    }
+  }
+  depends_on = [helm_release.cilium]
+}
+
+resource "kubernetes_manifest" "cilium_bgp_peering_policy" {
+  manifest = {
+    apiVersion = "cilium.io/v2alpha1"
+    kind       = "CiliumBGPPeeringPolicy"
+    metadata = {
+      name = "vyos-peering"
+    }
+    spec = {
+      nodeSelector = {
+        matchLabels = {
+          "kubernetes.io/os" = "linux"
+        }
+      }
+      virtualRouters = [
+        {
+          localASN      = 64513
+          exportPodCIDR = true
+          serviceSelector = {
+            matchExpressions = [
+              {
+                key      = "somekey"
+                operator = "NotIn"
+                values   = ["never-match"]
+              }
+            ]
+          }
+          neighbors = [
+            {
+              peerAddress = "192.168.10.1/32"
+              peerASN     = 64512
+            }
+          ]
+        }
+      ]
+    }
+  }
+  depends_on = [helm_release.cilium]
 }
 
 resource "kubernetes_storage_class" "proxmox_data" {

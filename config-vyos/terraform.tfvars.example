@@ -1,5 +1,4 @@
 vyos_management_ip = "192.168.1.101"
-vyos_lan_cidr       = "192.168.10.1/24"
 vyos_api_key       = "jhab"
 
 enable_tailscale   = true
