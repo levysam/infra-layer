@@ -76,3 +76,8 @@ variable "pci_passthrough_id" {
   description = "PCI ID for WAN passthrough (used if use_pci_passthrough is true)"
 }
 
+variable "proxmox_scsi_hardware" {
+  type    = string
+  default = "virtio-scsi-single"
+}
+

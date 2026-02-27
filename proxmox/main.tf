@@ -26,10 +26,10 @@ resource "proxmox_virtual_environment_vm" "talos_node" {
     dedicated = each.value.ram
   }
 
-  scsi_hardware = "virtio-scsi-pci"
+  scsi_hardware = var.proxmox_scsi_hardware
 
   disk {
-    datastore_id = each.value.storage_id
+    datastore_id = var.proxmox_vm_datastore
     file_id      = var.image_file_id # Talos .img or .iso
     interface    = "scsi0"
     iothread     = true
@@ -43,14 +43,14 @@ resource "proxmox_virtual_environment_vm" "talos_node" {
   }
 
   initialization {
-    datastore_id = each.value.storage_id
+    datastore_id = var.proxmox_vm_datastore
     ip_config {
       ipv4 {
         address = each.value.ip_address == null ? "dhcp" : "${each.value.ip_address}/24"
         gateway = each.value.ip_address == null ? null : var.gateway
       }
     }
-    user_data_file_id = each.value.is_control ? var.cp_config_id : var.worker_config_id
+    user_data_file_id = each.value.config_id
   }
 
   operating_system {

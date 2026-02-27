@@ -99,9 +99,16 @@ resource "vyos_service_router_advert_interface" "lan_ra" {
   identifier = {
     interface = "eth0"
   }
-  managed_flag      = false
+  managed_flag      = true
   other_config_flag = true
   name_server       = ["2606:4700:4700::1111", "2001:4860:4860::8888"]
+}
+
+resource "vyos_service_router_advert_interface_prefix" "lan_ra_prefix" {
+  identifier = {
+    interface = "eth0"
+    prefix    = "fd00:10::/64"
+  }
 }
 resource "vyos_container_network" "tailscale" {
   count = var.enable_tailscale ? 1 : 0
@@ -142,7 +149,7 @@ resource "vyos_container_name" "tailscale" {
   identifier = {
     name = "tailscale"
   }
-  image = "tailscale/tailscale:latest"
+  image = "docker.io/tailscale/tailscale:latest"
   network = {
     "tailscale" = {}
   }

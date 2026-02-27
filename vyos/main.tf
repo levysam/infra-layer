@@ -24,7 +24,7 @@ resource "proxmox_virtual_environment_vm" "vyos" {
     dedicated = var.memory
   }
 
-  scsi_hardware = "virtio-scsi-single"
+  scsi_hardware = var.proxmox_scsi_hardware
 
   disk {
     datastore_id = var.storage_id
