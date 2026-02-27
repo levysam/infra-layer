@@ -1,3 +1,32 @@
+# Manual Talos Configuration (CRITICAL)
+
+Before applying Terraform and bootstrapping, you **MUST** ensure the following configurations are present in your local `controlplane.yaml` and `worker.yaml` files.
+
+### 1. Networking (Cilium & BGP)
+```yaml
+cluster:
+  network:
+    cni:
+      name: none
+  proxy:
+    disabled: true
+```
+
+### 2. IPv6 Support
+```yaml
+machine:
+  network:
+    interfaces:
+      - interface: ens18
+        dhcp: true
+        dhcp6: true
+```
+
+### 3. Proxmox CSI (Auto-Discovery)
+The `infra-proxmox` module now automatically injects the required topology labels and identifies nodes by name. No manual `providerID` is needed!
+
+---
+
 # Talos & VyOS Hybrid Infrastructure
 
 This project automates the deployment of a hybrid Kubernetes infrastructure on Proxmox, featuring a **VyOS** virtual router as the gateway, **Talos Linux** nodes for the Kubernetes cluster, automated **Tailscale** VPN integration, and **Proxmox CSI** for persistent storage.
@@ -52,7 +81,8 @@ The `config-vyos` module needs to talk to the VyOS HTTPS API, which is disabled 
 ```bash
 configure
 set service https api keys id terraform key 'jhab'
-set service https api
+set service https api rest
+set service https api graphql
 commit
 save
 exit

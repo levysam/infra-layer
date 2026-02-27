@@ -82,3 +82,50 @@ variable "enable_proxmox_csi" {
   type    = bool
   default = false
 }
+
+variable "proxmox_iso_datastore" {
+  type    = string
+  default = "local"
+}
+
+variable "proxmox_snippet_datastore" {
+  type    = string
+  default = "local"
+}
+
+variable "proxmox_vm_datastore" {
+  type    = string
+  default = "local"
+}
+
+variable "proxmox_lan_bridge" {
+  type    = string
+  default = "vmbr1"
+}
+
+variable "proxmox_wan_bridge" {
+  type    = string
+  default = "vmbr0"
+}
+
+variable "proxmox_scsi_hardware" {
+  type    = string
+  default = "virtio-scsi-single"
+}
+
+variable "talos_template_name" {
+  type    = string
+  default = "talos-template"
+}
+
+variable "proxmox_ssh_public_key" {
+  type        = string
+  description = "SSH public key for VyOS and Talos nodes"
+  default     = null
+}
+
+variable "proxmox_region" {
+  type        = string
+  description = "Region name for Proxmox cluster (used for topology labels)"
+  default     = "default"
+}

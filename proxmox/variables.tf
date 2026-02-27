@@ -8,6 +8,7 @@ variable "nodes" {
     storage_id = string
     is_control = bool
     ip_address = optional(string)
+    config_id  = string
   }))
 }
 
@@ -25,16 +26,6 @@ variable "image_file_id" {
   description = "Talos image file ID (e.g. from proxmox_virtual_environment_file)"
 }
 
-variable "cp_config_id" {
-  type        = string
-  description = "Snippet ID for controlplane configuration"
-}
-
-variable "worker_config_id" {
-  type        = string
-  description = "Snippet ID for worker configuration"
-}
-
 variable "gateway" {
   type        = string
   description = "Default gateway for the nodes"
@@ -43,5 +34,15 @@ variable "gateway" {
 variable "network_bridge" {
   type    = string
   default = "vmbr1"
+}
+
+variable "proxmox_scsi_hardware" {
+  type    = string
+  default = "virtio-scsi-single"
+}
+
+variable "proxmox_vm_datastore" {
+  type    = string
+  default = "local"
 }
 
