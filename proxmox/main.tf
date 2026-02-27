@@ -1,95 +1,66 @@
 terraform {
   required_providers {
     proxmox = {
-      source  = "telmate/proxmox"
-      version = "3.0.2-rc07"
+      source = "bpg/proxmox"
     }
   }
 }
 
-resource "proxmox_vm_qemu" "talos_node" {
+resource "proxmox_virtual_environment_vm" "talos_node" {
   for_each = var.nodes
 
-  name        = each.key
-  target_node = var.proxmox_node
-  vmid        = each.value.vmid
+  name      = each.key
+  node_name = var.proxmox_node
+  vm_id     = each.value.vmid
 
-  clone = var.os_iso == null ? var.template_name : null
-
-  agent    = 0
-  os_type  = "l26"
-  scsihw   = "virtio-scsi-pci"
-  bootdisk = "scsi0"
-  boot     = "order=ide2;scsi0"
-  memory   = each.value.ram
+  agent {
+    enabled = false # Talos doesn't use the standard QEMU agent for management
+  }
 
   cpu {
-    cores   = each.value.cores
-    sockets = 1
-    type    = "host"
+    cores = each.value.cores
+    type  = "host"
   }
 
-  disks {
-    scsi {
-      scsi0 {
-        disk {
-          size     = "${each.value.disk_size}G"
-          storage  = each.value.storage_id
-          iothread = true
-        }
-      }
-    }
-
-    ide {
-      # OS CDROM if iso is set
-      dynamic "ide2" {
-        for_each = var.os_iso != null ? [1] : []
-        content {
-          cdrom {
-            iso = var.os_iso
-          }
-        }
-      }
-
-      # Seed 1 (Control Plane)
-      dynamic "ide0" {
-        for_each = (var.seed_1 != null && each.value.is_control) ? [1] : []
-        content {
-          cdrom {
-            iso = var.seed_1
-          }
-        }
-      }
-
-      # Seed 2 (Worker Nodes)
-      dynamic "ide1" {
-        for_each = (var.seed_2 != null && !each.value.is_control) ? [1] : []
-        content {
-          cdrom {
-            iso = var.seed_2
-          }
-        }
-      }
-
-      ide3 {
-        cloudinit {
-          storage = each.value.storage_id
-        }
-      }
-    }
+  memory {
+    dedicated = each.value.ram
   }
 
-  network {
-    id     = 0
-    model  = "virtio"
+  scsi_hardware = "virtio-scsi-pci"
+
+  disk {
+    datastore_id = each.value.storage_id
+    file_id      = var.image_file_id # Talos .img or .iso
+    interface    = "scsi0"
+    iothread     = true
+    discard      = "on"
+    size         = each.value.disk_size
+  }
+
+  network_device {
     bridge = var.network_bridge
+    model  = "virtio"
+  }
+
+  initialization {
+    datastore_id = each.value.storage_id
+    ip_config {
+      ipv4 {
+        address = each.value.ip_address == null ? "dhcp" : "${each.value.ip_address}/24"
+        gateway = each.value.ip_address == null ? null : var.gateway
+      }
+    }
+    user_data_file_id = each.value.is_control ? var.cp_config_id : var.worker_config_id
+  }
+
+  operating_system {
+    type = "l26" # Linux 2.6+
   }
 
   lifecycle {
     ignore_changes = [
-      network,
+      initialization,
     ]
   }
-
-  ipconfig0 = each.value.ip_address == null ? "ip=dhcp" : "ip=${each.value.ip_address}/24,gw=${var.gateway}"
 }
+

@@ -1,10 +1,7 @@
-output "vm_info" {
-  description = "Map of created VMs and their details"
-  value = {
-    for k, v in proxmox_vm_qemu.talos_node : k => {
-      id  = v.vmid
-      ip  = v.default_ipv4_address
-      mac = try(v.network[0].macaddr, "")
-    }
-  }
+output "vm_id" {
+  value = { for name, vm in proxmox_virtual_environment_vm.talos_node : name => vm.id }
+}
+
+output "vm_ips" {
+  value = { for name, vm in proxmox_virtual_environment_vm.talos_node : name => vm.ipv4_addresses[1] if vm.ipv4_addresses != null && length(vm.ipv4_addresses) > 1 }
 }
