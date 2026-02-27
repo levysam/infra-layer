@@ -7,5 +7,5 @@ variable "kubeconfig_path" {
 variable "proxmox_csi_storage_pool" {
   type        = string
   description = "Name of the Proxmox Storage Pool to use for dynamic PVC provisioning (e.g. local-zfs, local-lvm)"
-  default     = "local-lvm"
+  default     = "local-zfs"
 }
