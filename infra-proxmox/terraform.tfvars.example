@@ -1,0 +1,40 @@
+proxmox_api_url      = "https://192.168.1.100:8006/api2/json"
+proxmox_user         = "root@pam"
+proxmox_password     = "your_password"
+proxmox_node         = "pve"
+proxmox_ssh_address  = "192.168.1.100"
+
+vyos_storage_id      = "local-lvm"
+vyos_iso_path        = "local:iso/vyos-1.5-rolling-2024.img"
+vyos_management_ip   = "192.168.1.101"
+vyos_lan_cidr        = "192.168.10.1/24"
+vyos_api_key         = "jhab" # Should match vyos_api_key in config-vyos
+
+talos_nodes = {
+  "cp-01" = {
+    vmid       = 100
+    cores      = 2
+    ram        = 4096
+    disk_size  = 20
+    storage_id = "local-zfs"
+    is_control = true
+    ip_address = "192.168.10.10"
+  },
+  "worker-01" = {
+    vmid       = 110
+    cores      = 4
+    ram        = 8192
+    disk_size  = 50
+    storage_id = "local-zfs"
+    is_control = false
+    ip_address = "192.168.10.20"
+  }
+}
+
+talos_image_local_path         = "/path/to/local/talos-nocloud-amd64.iso"
+talos_cp_config_local_path     = "/path/to/local/controlplane.yaml"
+talos_worker_config_local_path = "/path/to/local/worker.yaml"
+
+enable_proxmox_csi           = true
+proxmox_csi_api_url          = "https://192.168.1.100:8006/api2/json" # Optional
+proxmox_region               = "default"

@@ -62,7 +62,7 @@ The Proxmox CSI plugin requires specific ACLs to map cluster resources:
 1.  **Privileges**: The `CSIRole` must include `Sys.Audit`, `Sys.Modify`, `VM.Audit`, `VM.Config.Disk`, and `Datastore.*`.
 2.  **ACL Mapping**: The ACL must be mapped **directly to the Token ID** (`user@pve!csi`), not just the user.
 3.  **Secret Format**: The `token_secret` in Kubernetes must contain **only the UUID** part of the token (e.g., `8d3f3e97-...`), not the full `id=secret` string exported by the Proxmox provider.
-4.  **Endpoint**: Use the local LAN IP of Proxmox (`192.168.1.76`) for the CSI configuration to avoid routing through the Tailscale tunnel for storage operations.
+4.  **Endpoint**: Use the local LAN IP of Proxmox for the CSI configuration to avoid routing through the Tailscale tunnel for storage operations.
 
 ---
 
