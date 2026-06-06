@@ -28,10 +28,6 @@ variable "vyos_wan_gateway" {
 }
 
 
-variable "wan_interface" {
-  default = "starlink"
-}
-
 variable "enable_tailscale" {
   type    = bool
   default = false
@@ -71,4 +67,58 @@ variable "metallb_peer_subnet" {
   description = "The subnet containing the MetalLB BGP peers (e.g., the Kubernetes Node LAN network)"
   type        = string
   default     = "192.168.10.0/24"
+}
+
+# -----------------------------------------------------------------------------
+// WireGuard tunnel pro Scaleway edge (yes365 mail).
+// On-prem é initiator (NAT traversal via persistent_keepalive).
+# -----------------------------------------------------------------------------
+
+variable "enable_scaleway_wg" {
+  description = "Ativar WG tunnel pro Scaleway edge"
+  type        = bool
+  default     = false
+}
+
+variable "scaleway_wg_interface" {
+  description = "Nome da interface WG"
+  type        = string
+  default     = "wg-scaleway"
+}
+
+variable "scaleway_wg_port" {
+  description = "Porta UDP WG"
+  type        = number
+  default     = 51820
+}
+
+variable "scaleway_wg_private_key" {
+  description = "Private key do on-prem (sensitive)"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "scaleway_wg_public_key" {
+  description = "Public key do peer Scaleway"
+  type        = string
+  default     = ""
+}
+
+variable "scaleway_wg_endpoint_ip" {
+  description = "IP público do VyOS Scaleway (listener)"
+  type        = string
+  default     = ""
+}
+
+variable "scaleway_wg_tunnel_ip" {
+  description = "IP do Scaleway no tunnel WG"
+  type        = string
+  default     = "10.200.255.1"
+}
+
+variable "scaleway_wg_onprem_tunnel_ip" {
+  description = "IP do on-prem no tunnel WG"
+  type        = string
+  default     = "10.200.255.2"
 }
