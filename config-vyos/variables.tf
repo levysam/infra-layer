@@ -81,15 +81,21 @@ variable "enable_scaleway_wg" {
 }
 
 variable "scaleway_wg_interface" {
-  description = "Nome da interface WG"
+  description = "Nome da interface WG (VyOS exige wgN numerico)"
   type        = string
-  default     = "wg-scaleway"
+  default     = "wg1"
 }
 
 variable "scaleway_wg_port" {
-  description = "Porta UDP WG"
+  description = "Porta UDP WG do peer Scaleway (destino)"
   type        = number
   default     = 51820
+}
+
+variable "scaleway_wg_local_port" {
+  description = "Porta UDP local do WG on-prem. Default 51821 pra nao conflitar com Tailscale (51820)."
+  type        = number
+  default     = 51821
 }
 
 variable "scaleway_wg_private_key" {

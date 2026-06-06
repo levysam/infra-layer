@@ -19,7 +19,8 @@ resource "vyos_interfaces_wireguard" "scaleway" {
 
   description = "WG tunnel to Scaleway edge (yes365 mail)"
   address     = ["${var.scaleway_wg_onprem_tunnel_ip}/32"]
-  port        = var.scaleway_wg_port
+  # Porta local (initiator) — 51820 está em uso pelo Tailscale aqui, usa 51821.
+  port        = var.scaleway_wg_local_port
   private_key = var.scaleway_wg_private_key
 }
 
